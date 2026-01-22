@@ -6,7 +6,7 @@ import spotipy.oauth2 as oauth2
 load_dotenv()
 client_id=os.getenv("SPOTIPY_CLIENT_ID")
 client_secret=os.getenv("SPOTIPY_CLIENT_SECRET")
-SCOPES = "user-library-read playlist-modify-private user-read-private"
+SCOPES = "user-read-private user-library-read playlist-modify-private"
 redirect_uri = 'http://127.0.0.1:5000/callback'
 # credentials = oauth2.SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp_oauth = SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri, scope=SCOPES)

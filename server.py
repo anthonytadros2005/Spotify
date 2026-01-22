@@ -15,14 +15,6 @@ var = 'https://accounts.spotify.com/authorize?'
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-@app.get("/")
-def hello_world():
-    return "<p>Hello, World</p>"
-
-
-@app.get("/george")
-def insult_george():
-    return "<p>Get off your phone ya hiwan</p>"
 
 @app.get('/login')
 def login():
@@ -52,15 +44,35 @@ def get_token():
     if not token:
         return None
     if sp_oauth.is_token_expired(token):
-        token_info = sp_oauth.refresh_access_token(token['refresh_token'])
-        session['token'] = token_info
+        token = sp_oauth.refresh_access_token(token['refresh_token'])
+        session['token'] = token
 
     return token
+@app.get('/run')
+def run():
+    token_info = get_token()
+    if not token_info:
+        return redirect(url_for('login'))
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    liked_songs = get_all_liked_songs(sp)
+    return f"Total liked songs: {len(liked_songs)}"
 
 
+def get_all_liked_songs(sp):
+     songs = []
+     limit = 50
+     offset = 0
+
+     while True:
+         results = sp.current_user_saved_tracks(limit=limit, offset=offset)
+         items = results["items"]
+         songs.extend(items)
+         print(f"Fetched {len(songs)} liked songs so far...")
+         if len(items) < limit:
+             break
+         offset += limit
+     return songs
 
 
-
-@app.get('/callback')
-def getAccessToken():
-    return 'your'
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000, debug=True)
